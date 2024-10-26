@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -27,6 +28,7 @@ type Config interface {
 func NewServer(config Config) *Server {
 	e := echo.New()
 
+	e.Logger.SetLevel(log.INFO)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
@@ -61,6 +63,7 @@ func (s *Server) Run(ctx context.Context) error {
 	})
 
 	<-ctx.Done()
+	s.e.Logger.Info("Shutting down server gracefully")
 	if err := s.e.Shutdown(context.Background()); err != nil {
 		s.e.Logger.Errorf("Failed to shutdown server: %w", err)
 	}
