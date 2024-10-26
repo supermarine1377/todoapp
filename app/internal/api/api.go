@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -50,6 +51,8 @@ func (s *Server) Run(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
 	s.e.Add(http.MethodGet, "/healthz", func(c echo.Context) error {
+		// デバッグ用
+		time.Sleep(10 * time.Second)
 		return c.JSON(http.StatusOK, nil)
 	})
 
