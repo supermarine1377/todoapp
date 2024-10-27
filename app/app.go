@@ -6,11 +6,12 @@ import (
 
 	"github.com/supermarine1377/todoapp/app/internal/api"
 	"github.com/supermarine1377/todoapp/app/internal/config"
+	"github.com/supermarine1377/todoapp/app/internal/config/loader"
 )
 
 // Run はサーバーを起動する
 func Run(ctx context.Context) error {
-	config, err := config.New()
+	config, err := config.New(loader.Parse)
 	if err != nil {
 		return err
 	}

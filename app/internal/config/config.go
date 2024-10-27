@@ -3,15 +3,19 @@
 // 設定を読み込む機能はload packageで実装する
 package config
 
-import config_loader "github.com/supermarine1377/todoapp/app/internal/config/internal/loader"
+import config_loader "github.com/supermarine1377/todoapp/app/internal/config/loader"
 
 // Config は、サーバーの設定を表す
 type Config struct {
 	config config_loader.Config
 }
 
-func New() (*Config, error) {
-	config, err := config_loader.Parse()
+// ConfigLoaderFunc はサーバーの設定を読み込む関数
+type ConfigLoaderFunc func() (*config_loader.Config, error)
+
+// New はサーバーの設定を返却する
+func New(clf ConfigLoaderFunc) (*Config, error) {
+	config, err := clf()
 	if err != nil {
 		return nil, err
 	}
@@ -20,6 +24,7 @@ func New() (*Config, error) {
 	}, nil
 }
 
+// Port はサーバーが稼働するポートを返す
 func (c *Config) Port() int {
 	return c.config.Port
 }

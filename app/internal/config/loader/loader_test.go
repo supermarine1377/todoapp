@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/supermarine1377/todoapp/app/internal/config/internal/loader"
+	"github.com/supermarine1377/todoapp/app/internal/config/loader"
 )
 
 type envVar struct {
