@@ -1,5 +1,5 @@
-// package handlers はAPIのハンドラーを提供します。
-package handlers
+// package healthz は死活監視用APIのハンドラーを提供します。
+package healthz
 
 import (
 	"net/http"
