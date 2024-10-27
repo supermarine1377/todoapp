@@ -4,7 +4,7 @@ package loader_test
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 	"github.com/supermarine1377/todoapp/app/internal/config/internal/loader"
 )
 
@@ -52,9 +52,7 @@ func TestParse(t *testing.T) {
 				t.Errorf("Parse() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Errorf("got unexpected diff: %s", diff)
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

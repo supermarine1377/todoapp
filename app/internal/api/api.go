@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/supermarine1377/todoapp/app/internal/api/handlers"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -49,9 +50,7 @@ func NewServer(config Config) *Server {
 func (s *Server) Run(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
-	s.e.Add(http.MethodGet, "/healthz", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, nil)
-	})
+	s.e.Add(http.MethodGet, "/healthz", handlers.Healthz)
 
 	eg.Go(func() error {
 		addr := fmt.Sprintf(":%d", s.config.Port())
