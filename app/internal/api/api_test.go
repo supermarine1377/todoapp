@@ -1,3 +1,4 @@
+// package api_test は、APIレベルでのテストを実行する
 package api_test
 
 import (
@@ -5,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/supermarine1377/todoapp/app/internal/api"
 	"golang.org/x/sync/errgroup"
 )
@@ -16,30 +18,54 @@ func (mc MockConfig) Port() int {
 }
 
 func TestServer_Run(t *testing.T) {
-	t.Run("Test Sever.Run()", func(t *testing.T) {
-		server := api.NewServer(MockConfig{})
+	tests := []struct {
+		name       string
+		prepareReq func() (*http.Request, error)
+		statusCode int
+	}{
+		{
+			name: "GET /healthz",
+			prepareReq: func() (*http.Request, error) {
+				return http.NewRequest(http.MethodGet, "http://localhost:8080/healthz", nil)
+			},
+			statusCode: http.StatusOK,
+		},
+		{
+			name: "POST /todo",
+			prepareReq: func() (*http.Request, error) {
+				return http.NewRequest(http.MethodPost, "http://localhost:8080/todo", nil)
+			},
+			statusCode: http.StatusCreated,
+		},
+	}
+	server := api.NewServer(MockConfig{})
 
-		ctx, cancel := context.WithCancel(context.Background())
-		eg, ctx := errgroup.WithContext(ctx)
-		eg.Go(func() error {
-			return server.Run(ctx)
-		})
-
-		resp, err := http.Get("http://localhost:8080/healthz")
-		if err != nil {
-			t.Errorf("request failed: %v", err)
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			t.Error("got unexpected http status code")
-		}
-
-		cancel()
-
-		// Server.Run()の戻り値を検証
-		if err := eg.Wait(); err != nil {
-			t.Fatal(err)
-		}
+	ctx, cancel := context.WithCancel(context.Background())
+	eg, ctx := errgroup.WithContext(ctx)
+	eg.Go(func() error {
+		return server.Run(ctx)
 	})
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := tt.prepareReq()
+			if err != nil {
+				t.Fatal(err)
+			}
+			client := &http.Client{}
+			res, err := client.Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer res.Body.Close()
+			assert.Equal(t, tt.statusCode, res.StatusCode)
+		})
+	}
+
+	cancel()
+
+	// Server.Run()の戻り値を検証
+	if err := eg.Wait(); err != nil {
+		t.Fatal(err)
+	}
 }
