@@ -11,12 +11,14 @@ import (
 )
 
 func TestHealthz(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	t.Run("TestHealthz", func(t *testing.T) {
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
 
-	if assert.NoError(t, healthz.Healthz(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-	}
+		if assert.NoError(t, healthz.Healthz(c)) {
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+	})
 }
