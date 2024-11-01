@@ -1,0 +1,17 @@
+{
+  "name": "TODO app devcontainer",
+  "dockerFile": "../dev.Dockerfile",
+  "mounts": [
+    "source=.,target=/app,type=bind"
+  ],
+  "workspaceFolder": "/app",
+  "forwardPorts": [8080],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "premparihar.gotestexplorer"
+      ]
+    }
+  }
+}
