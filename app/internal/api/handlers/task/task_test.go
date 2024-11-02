@@ -1,5 +1,4 @@
-// package todo はTODO関係のAPIハンドラーを提供する
-package todo
+package task_test
 
 import (
 	"net/http"
@@ -9,22 +8,23 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/supermarine1377/todoapp/app/common/apperrors"
-	"github.com/supermarine1377/todoapp/app/internal/api/handlers/todo/mock"
+	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task"
+	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task/mock"
 	"go.uber.org/mock/gomock"
 )
 
-func TestTODOHandler_Create(t *testing.T) {
+func TestTaskHandler_Create(t *testing.T) {
 	tests := []struct {
 		name        string
-		prepareMock func() *mock.MockTODORepository
+		prepareMock func() *mock.MockTaskRepository
 		wantErr     bool
 		statusCode  int
 	}{
 		{
 			name: "Bad request status",
-			prepareMock: func() *mock.MockTODORepository {
+			prepareMock: func() *mock.MockTaskRepository {
 				ctrl := gomock.NewController(t)
-				m := mock.NewMockTODORepository(ctrl)
+				m := mock.NewMockTaskRepository(ctrl)
 				m.EXPECT().Create().Return(apperrors.ErrBadRequest)
 				return m
 			},
@@ -33,9 +33,9 @@ func TestTODOHandler_Create(t *testing.T) {
 		},
 		{
 			name: "Internal server error status",
-			prepareMock: func() *mock.MockTODORepository {
+			prepareMock: func() *mock.MockTaskRepository {
 				ctrl := gomock.NewController(t)
-				m := mock.NewMockTODORepository(ctrl)
+				m := mock.NewMockTaskRepository(ctrl)
 				m.EXPECT().Create().Return(apperrors.ErrInternalServerError)
 				return m
 			},
@@ -44,9 +44,9 @@ func TestTODOHandler_Create(t *testing.T) {
 		},
 		{
 			name: "Created status",
-			prepareMock: func() *mock.MockTODORepository {
+			prepareMock: func() *mock.MockTaskRepository {
 				ctrl := gomock.NewController(t)
-				m := mock.NewMockTODORepository(ctrl)
+				m := mock.NewMockTaskRepository(ctrl)
 				m.EXPECT().Create().Return(nil)
 				return m
 			},
@@ -57,14 +57,14 @@ func TestTODOHandler_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := tt.prepareMock()
-			th := NewTODOHandler(m)
+			th := task.NewTaskHandler(m)
 
 			r := httptest.NewRequest(http.MethodPost, "/", nil)
 			rc := httptest.NewRecorder()
 			c := echo.New().NewContext(r, rc)
 
 			if err := th.Create(c); (err != nil) != tt.wantErr {
-				t.Errorf("TODOHandler.Create() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("TaskHandler.Create() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
 			assert.Equal(t, tt.statusCode, rc.Code)

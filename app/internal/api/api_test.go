@@ -31,9 +31,9 @@ func TestServer_Run(t *testing.T) {
 			statusCode: http.StatusOK,
 		},
 		{
-			name: "POST /todo",
+			name: "POST /task",
 			prepareReq: func() (*http.Request, error) {
-				return http.NewRequest(http.MethodPost, "http://localhost:8080/todo", nil)
+				return http.NewRequest(http.MethodPost, "http://localhost:8080/task", nil)
 			},
 			statusCode: http.StatusCreated,
 		},
