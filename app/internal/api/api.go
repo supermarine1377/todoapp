@@ -64,7 +64,7 @@ func (s *Server) Run(ctx context.Context) error {
 		addr := fmt.Sprintf(":%d", s.config.Port())
 		s.e.Logger.Info("Start sever")
 		if err := s.e.Start(addr); err != http.ErrServerClosed {
-			s.e.Logger.Error("failed to shutdown server: %w", err)
+			s.e.Logger.Error("failed to start server: %w", err)
 		}
 		return nil
 	})
