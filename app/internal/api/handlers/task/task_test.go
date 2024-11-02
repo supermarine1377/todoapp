@@ -1,6 +1,7 @@
 package task_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,16 +17,16 @@ import (
 func TestTaskHandler_Create(t *testing.T) {
 	tests := []struct {
 		name        string
-		prepareMock func() *mock.MockTaskRepository
+		prepareMock func(ctx context.Context) *mock.MockTaskRepository
 		wantErr     bool
 		statusCode  int
 	}{
 		{
 			name: "Bad request status",
-			prepareMock: func() *mock.MockTaskRepository {
+			prepareMock: func(ctx context.Context) *mock.MockTaskRepository {
 				ctrl := gomock.NewController(t)
 				m := mock.NewMockTaskRepository(ctrl)
-				m.EXPECT().Create().Return(apperrors.ErrBadRequest)
+				m.EXPECT().CreateCtx(ctx, gomock.Any()).Return(apperrors.ErrBadRequest)
 				return m
 			},
 			wantErr:    false,
@@ -33,10 +34,10 @@ func TestTaskHandler_Create(t *testing.T) {
 		},
 		{
 			name: "Internal server error status",
-			prepareMock: func() *mock.MockTaskRepository {
+			prepareMock: func(ctx context.Context) *mock.MockTaskRepository {
 				ctrl := gomock.NewController(t)
 				m := mock.NewMockTaskRepository(ctrl)
-				m.EXPECT().Create().Return(apperrors.ErrInternalServerError)
+				m.EXPECT().CreateCtx(ctx, gomock.Any()).Return(apperrors.ErrInternalServerError)
 				return m
 			},
 			wantErr:    false,
@@ -44,10 +45,10 @@ func TestTaskHandler_Create(t *testing.T) {
 		},
 		{
 			name: "Created status",
-			prepareMock: func() *mock.MockTaskRepository {
+			prepareMock: func(ctx context.Context) *mock.MockTaskRepository {
 				ctrl := gomock.NewController(t)
 				m := mock.NewMockTaskRepository(ctrl)
-				m.EXPECT().Create().Return(nil)
+				m.EXPECT().CreateCtx(ctx, gomock.Any()).Return(nil)
 				return m
 			},
 			wantErr:    false,
@@ -56,7 +57,7 @@ func TestTaskHandler_Create(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := tt.prepareMock()
+			m := tt.prepareMock(context.Background())
 			th := task.NewTaskHandler(m)
 
 			r := httptest.NewRequest(http.MethodPost, "/", nil)

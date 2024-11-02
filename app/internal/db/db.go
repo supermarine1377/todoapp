@@ -1,6 +1,12 @@
 // db はデータベースに対する操作を実装する
 package db
 
+import (
+	"context"
+
+	"github.com/supermarine1377/todoapp/app/internal/model/entity/task"
+)
+
 // TaskRepository はTaskのリポジトリ
 type TaskRepository struct {
 }
@@ -11,6 +17,6 @@ func NewTaskRepository() *TaskRepository {
 }
 
 // Create はTaskを作成する
-func (tr TaskRepository) Create() error {
+func (tr TaskRepository) CreateCtx(ctx context.Context, task *task.Task) error {
 	return nil
 }
