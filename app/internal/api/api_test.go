@@ -4,6 +4,7 @@ package api_test
 import (
 	"context"
 	"net/http"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,9 +43,15 @@ func TestServer_Run(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	eg, ctx := errgroup.WithContext(ctx)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
 	eg.Go(func() error {
+		wg.Done()
 		return server.Run(ctx)
 	})
+	// Wait until server's ready
+	wg.Wait()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
