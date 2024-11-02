@@ -10,8 +10,10 @@
 package mock
 
 import (
+	context "context"
 	reflect "reflect"
 
+	task "github.com/supermarine1377/todoapp/app/internal/model/entity/task"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -39,16 +41,16 @@ func (m *MockTaskRepository) EXPECT() *MockTaskRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Create mocks base method.
-func (m *MockTaskRepository) Create() error {
+// CreateCtx mocks base method.
+func (m *MockTaskRepository) CreateCtx(ctx context.Context, task *task.Task) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create")
+	ret := m.ctrl.Call(m, "CreateCtx", ctx, task)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Create indicates an expected call of Create.
-func (mr *MockTaskRepositoryMockRecorder) Create() *gomock.Call {
+// CreateCtx indicates an expected call of CreateCtx.
+func (mr *MockTaskRepositoryMockRecorder) CreateCtx(ctx, task any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockTaskRepository)(nil).Create))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCtx", reflect.TypeOf((*MockTaskRepository)(nil).CreateCtx), ctx, task)
 }
