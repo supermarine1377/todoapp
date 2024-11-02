@@ -1,16 +1,16 @@
 // db はデータベースに対する操作を実装する
 package db
 
-// TODORepository はTODOのリポジトリ
-type TODORepository struct {
+// TaskRepository はTaskのリポジトリ
+type TaskRepository struct {
 }
 
-// NewTODORepository はTODORepositoryを生成する
-func NewTODORepository() *TODORepository {
-	return &TODORepository{}
+// NewTaskRepository はTaskRepositoryを生成する
+func NewTaskRepository() *TaskRepository {
+	return &TaskRepository{}
 }
 
-// Create はTODOを作成する
-func (tr TODORepository) Create() error {
+// Create はTaskを作成する
+func (tr TaskRepository) Create() error {
 	return nil
 }
