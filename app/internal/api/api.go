@@ -57,7 +57,7 @@ func (s *Server) Run(ctx context.Context) error {
 	}
 	{
 		th := task.NewTaskHandler(db.NewTaskRepository())
-		s.e.Add(http.MethodPost, "/task", th.Create)
+		s.e.Add(http.MethodPost, "/tasks", th.Create)
 	}
 
 	eg.Go(func() error {
