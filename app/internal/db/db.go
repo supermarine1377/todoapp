@@ -1,22 +1,37 @@
-// db はデータベースに対する操作を実装する
+// package db はデータベースに対する操作を実装する
 package db
 
 import (
 	"context"
 
-	"github.com/supermarine1377/todoapp/app/internal/model/entity/task"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-// TaskRepository はTaskのリポジトリ
-type TaskRepository struct {
+// DB はデータベースを表す
+type DB struct {
+	g *gorm.DB
 }
 
-// NewTaskRepository はTaskRepositoryを生成する
-func NewTaskRepository() *TaskRepository {
-	return &TaskRepository{}
+// Config はデータベースを抽象化する
+type Config interface {
+	DSN() string
 }
 
-// Create はTaskを作成する
-func (tr TaskRepository) CreateCtx(ctx context.Context, task *task.Task) error {
+// NewDB はDBを生成する
+func NewDB(config Config) (*DB, error) {
+	g, err := gorm.Open(sqlite.Open(config.DSN()), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return &DB{g: g}, nil
+}
+
+func (db *DB) InsertCtx(ctx context.Context, p any) error {
+	if err := db.g.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		return tx.Create(p).Error
+	}); err != nil {
+		return err
+	}
 	return nil
 }

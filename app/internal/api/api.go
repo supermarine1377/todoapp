@@ -12,6 +12,7 @@ import (
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/healthz"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task"
 	"github.com/supermarine1377/todoapp/app/internal/db"
+	"github.com/supermarine1377/todoapp/app/internal/repository"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -25,6 +26,7 @@ type Server struct {
 // Configは、Serverの設定を抽象化する
 type Config interface {
 	Port() int
+	DSN() string
 }
 
 // NewServer は、Serverを作成する
@@ -52,11 +54,16 @@ func NewServer(config Config) *Server {
 func (s *Server) Run(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
+	db, err := db.NewDB(s.config)
+	if err != nil {
+		return fmt.Errorf("failed to connect database: %w", err)
+	}
 	{
 		s.e.Add(http.MethodGet, "/healthz", healthz.Healthz)
 	}
 	{
-		th := task.NewTaskHandler(db.NewTaskRepository())
+		tr := repository.NewTaskRepository(db)
+		th := task.NewTaskHandler(tr)
 		s.e.Add(http.MethodPost, "/tasks", th.Create)
 	}
 
