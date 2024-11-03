@@ -8,3 +8,9 @@ generate:
 
 test:
 	go test ./...
+
+lint:
+	golangci-lint run
+
+migrate-sqlite:
+	sqlite3def _data/sqlite.db -f _migration/sqlite/schema.sql 
