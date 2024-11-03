@@ -3,10 +3,12 @@ package api_test
 
 import (
 	"context"
+"errors"
 	"net/http"
 	"sync"
 	"testing"
 
+"github.com/cenkalti/backoff/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/supermarine1377/todoapp/app/internal/api"
 	"golang.org/x/sync/errgroup"
@@ -25,16 +27,9 @@ func TestServer_Run(t *testing.T) {
 		statusCode int
 	}{
 		{
-			name: "GET /healthz",
+			name: "POST task",
 			prepareReq: func() (*http.Request, error) {
-				return http.NewRequest(http.MethodGet, "http://localhost:8080/healthz", nil)
-			},
-			statusCode: http.StatusOK,
-		},
-		{
-			name: "POST /task",
-			prepareReq: func() (*http.Request, error) {
-				return http.NewRequest(http.MethodPost, "http://localhost:8080/task", nil)
+								return http.NewRequest(http.MethodPost, "http://localhost:8080/tasks", nil)
 			},
 			statusCode: http.StatusCreated,
 		},
@@ -50,8 +45,25 @@ func TestServer_Run(t *testing.T) {
 		wg.Done()
 		return server.Run(ctx)
 	})
-	// Wait until server's ready
-	wg.Wait()
+	
+	client := &http.Client{}
+if err := 	backoff.Retry(func() error {
+		req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/healthz", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		res, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			return errors.New("unexpected status code")
+		}
+		return nil
+	}, backoff.NewExponentialBackOff()); err != nil {
+		t.Fatal(err)
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
