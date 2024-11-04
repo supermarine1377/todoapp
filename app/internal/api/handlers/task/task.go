@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/supermarine1377/todoapp/app/common/apperrors"
 	"github.com/supermarine1377/todoapp/app/internal/model/entity/task"
@@ -34,9 +35,23 @@ func NewTaskHandler(tr TaskRepository) *TaskHandler {
 // Create はTaskを登録する
 func (th *TaskHandler) Create(c echo.Context) error {
 	ctx := c.Request().Context()
-	// TODO リクエストからtaskを生成
-	task := &task.Task{}
-	if err := th.tr.CreateCtx(ctx, task); err != nil {
+	var task task.Task
+	if err := c.Bind(&task); err != nil {
+		switch err {
+		case echo.ErrUnsupportedMediaType:
+			return c.JSON(http.StatusUnsupportedMediaType, nil)
+		case echo.ErrBadRequest:
+			return c.JSON(http.StatusBadRequest, nil)
+		default:
+			return c.JSON(http.StatusBadRequest, nil)
+		}
+	}
+	val := validator.New()
+	if err := val.Struct(task); err != nil {
+		return c.JSON(http.StatusBadRequest, "Missing required fileds")
+	}
+
+	if err := th.tr.CreateCtx(ctx, &task); err != nil {
 		if errors.Is(err, apperrors.ErrBadRequest) {
 			return c.JSON(http.StatusBadRequest, nil)
 		}

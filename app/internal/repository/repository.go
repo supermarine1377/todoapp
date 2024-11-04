@@ -4,6 +4,7 @@ package repository
 import (
 	"context"
 
+	"github.com/supermarine1377/todoapp/app/common/apperrors"
 	"github.com/supermarine1377/todoapp/app/internal/model/entity/task"
 )
 
@@ -26,5 +27,8 @@ func NewTaskRepository(db DB) *TaskRepository {
 
 // Create はTaskを作成する
 func (tr TaskRepository) CreateCtx(ctx context.Context, task *task.Task) error {
-	return tr.db.InsertCtx(ctx, task)
+	if err := tr.db.InsertCtx(ctx, task); err != nil {
+		return apperrors.ErrInternalServerError
+	}
+	return nil
 }
