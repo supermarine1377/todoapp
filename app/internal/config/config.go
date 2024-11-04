@@ -28,3 +28,8 @@ func New(clf ConfigLoaderFunc) (*Config, error) {
 func (c *Config) Port() int {
 	return c.config.Port
 }
+
+// DSN はデータベースのDSNを返す
+func (c *Config) DSN() string {
+	return c.config.DB.DSN
+}
