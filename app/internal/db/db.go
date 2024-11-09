@@ -27,6 +27,7 @@ func NewDB(config Config) (*DB, error) {
 	return &DB{g: g}, nil
 }
 
+// InsertCtx は、トランザクション内でデータを挿入する
 func (db *DB) InsertCtx(ctx context.Context, p any) error {
 	if err := db.g.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		return tx.Create(p).Error
