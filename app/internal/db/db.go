@@ -36,3 +36,13 @@ func (db *DB) InsertCtx(ctx context.Context, p any) error {
 	}
 	return nil
 }
+
+// SelectCtx は、データの一覧を返す
+func (db *DB) SelectCtx(ctx context.Context, p any, columns []string, offset, limit int) error {
+	return db.g.WithContext(ctx).
+		Select(columns).
+		Offset(offset).
+		Limit(limit).
+		Find(p).
+		Error
+}

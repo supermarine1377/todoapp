@@ -31,8 +31,6 @@ func newMockDB() (*DB, sqlmock.Sqlmock, error) {
 
 var ErrDummy = errors.New("dummy error")
 
-type anyTime struct{}
-
 func TestDB_InsertCtx(t *testing.T) {
 
 	tests := []struct {
@@ -110,6 +108,56 @@ func TestDB_InsertCtx(t *testing.T) {
 
 			if err := db.InsertCtx(context.Background(), tt.p); (err != nil) != tt.wantErr {
 				t.Errorf("DB.InsertCtx() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestDB_ListCtx(t *testing.T) {
+	type args struct {
+		columns []string
+		p       any
+		offset  int
+		limit   int
+	}
+	tests := []struct {
+		name      string
+		args      args
+		prepareDB func() (*DB, error)
+		wantErr   bool
+	}{
+		{
+			name: "Select successful",
+			args: args{
+				columns: []string{"title", "created_at", "updated_at"},
+				p:       &task.Tasks{},
+				offset:  5,
+				limit:   10,
+			},
+			prepareDB: func() (*DB, error) {
+				db, mock, err := newMockDB()
+				if err != nil {
+					return nil, err
+				}
+				mock.ExpectQuery("SELECT `title`,`created_at`,`updated_at` FROM `tasks` LIMIT 10 OFFSET 5").
+					WillReturnRows(sqlmock.NewRows([]string{"title", "created_at", "updated_at"}).
+						AddRow("hoge", 1, 1))
+				return db, nil
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, err := tt.prepareDB()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if err := db.SelectCtx(
+				context.Background(), tt.args.p, tt.args.columns, tt.args.offset, tt.args.limit,
+			); (err != nil) != tt.wantErr {
+				t.Errorf("DB.ListCtx() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
