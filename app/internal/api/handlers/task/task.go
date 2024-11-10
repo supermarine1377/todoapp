@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -23,6 +24,8 @@ type TaskHandler struct {
 type TaskRepository interface {
 	// task を作成する
 	CreateCtx(ctx context.Context, task *task.Task) error
+	// task の一覧を返却する
+	ListCtx(ctx context.Context, offset, limit int) (*task.Tasks, error)
 }
 
 // NewTaskHandler はTaskHandler を生成する
@@ -61,4 +64,32 @@ func (th *TaskHandler) Create(c echo.Context) error {
 		}
 	}
 	return c.JSON(http.StatusCreated, nil)
+}
+
+// List はTaskの一覧を返却する
+func (th *TaskHandler) List(c echo.Context) error {
+	var offset int
+	var err error
+	if o := c.QueryParam("offset"); o != "" {
+		offset, err = strconv.Atoi(o)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, nil)
+		}
+	}
+
+	limit := 10
+	if l := c.QueryParam("limit"); l != "" {
+		limit, err = strconv.Atoi(l)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, nil)
+		}
+	}
+
+	ctx := c.Request().Context()
+	tasks, err := th.tr.ListCtx(ctx, offset, limit)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+
+	return c.JSON(http.StatusOK, tasks)
 }

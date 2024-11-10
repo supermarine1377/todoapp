@@ -1,17 +1,15 @@
 // package task はタスクを実装する
 package task
 
-import "time"
-
 // ID はタスクのID
 type ID int64
 
 // Task はタスクを表す
 type Task struct {
-	ID        ID
+	ID        ID     `json:"id"`
 	Title     string `validate:"required" json:"title"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt int64  `json:"created_at"`
+	UpdatedAt int64  `json:"updated_at"`
 }
 
 type Tasks []*Task

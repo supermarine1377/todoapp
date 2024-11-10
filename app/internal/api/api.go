@@ -65,6 +65,8 @@ func (s *Server) Run(ctx context.Context) error {
 		tr := repository.NewTaskRepository(db)
 		th := task.NewTaskHandler(tr)
 		s.e.Add(http.MethodPost, "/tasks", th.Create)
+		s.e.Add(http.MethodGet, "/tasks", th.List)
+
 	}
 
 	eg.Go(func() error {

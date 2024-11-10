@@ -54,3 +54,18 @@ func (mr *MockTaskRepositoryMockRecorder) CreateCtx(ctx, task any) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCtx", reflect.TypeOf((*MockTaskRepository)(nil).CreateCtx), ctx, task)
 }
+
+// ListCtx mocks base method.
+func (m *MockTaskRepository) ListCtx(ctx context.Context, offset, limit int) (*task.Tasks, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListCtx", ctx, offset, limit)
+	ret0, _ := ret[0].(*task.Tasks)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListCtx indicates an expected call of ListCtx.
+func (mr *MockTaskRepositoryMockRecorder) ListCtx(ctx, offset, limit any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCtx", reflect.TypeOf((*MockTaskRepository)(nil).ListCtx), ctx, offset, limit)
+}
