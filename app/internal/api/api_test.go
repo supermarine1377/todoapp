@@ -49,8 +49,11 @@ func prepareDB() (*sql.DB, error) {
 func execSQL(db *sql.DB, f *os.File) error {
 	defer f.Close()
 	var buff bytes.Buffer
-	_, _ = io.Copy(&buff, f)
-	_, err := db.Exec(buff.String())
+	_, err := io.Copy(&buff, f)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(buff.String())
 	if err != nil {
 		return err
 	}
