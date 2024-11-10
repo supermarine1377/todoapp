@@ -24,7 +24,7 @@ RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0 && \
     tar xz -C /usr/local/bin -f sqlite3def_linux_amd64.tar.gz && \
     go install -v github.com/cweill/gotests/gotests@v1.6.0
   
-ENV DATABASE_DSN="_data/sqlite.db"
+ENV DATABASE_DSN="/app/_data/sqlite.db"
 ENV TZ="Asia/Tokyo"
 
 WORKDIR /app/
