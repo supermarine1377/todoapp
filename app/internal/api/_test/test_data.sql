@@ -1,6 +1,6 @@
 INSERT INTO tasks (id, title, created_at, updated_at) VALUES
-(1, 'Write report', '2024-11-01 10:30:00', '2024-11-01 10:30:00'),
-(2, 'Review code', '2024-11-01 11:00:00', '2024-11-01 11:00:00'),
-(3, 'Plan meeting', '2024-11-01 12:00:00', '2024-11-01 12:30:00'),
-(4, 'Update documentation', '2024-11-02 09:00:00', '2024-11-02 10:00:00'),
-(5, 'Fix bug #42', '2024-11-02 11:15:00', '2024-11-02 11:20:00');
+(1, 'Write report', 1, 1),
+(2, 'Review code', 2, 2),
+(3, 'Plan meeting', 2, 2),
+(4, 'Update documentation', 2, 2),
+(5, 'Fix bug #42', 2, 3);
