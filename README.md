@@ -16,7 +16,7 @@ Open this repository in VSCode and go to the Command pallete (Cmd+Shift+P) and t
 
 Or you can build Docker image with:
 ```sh
-make build
+make dev
 ```
 
 ## Development dependencies
