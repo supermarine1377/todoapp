@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/supermarine1377/todoapp/app/internal/model/entity/task"
 	"github.com/supermarine1377/todoapp/app/internal/repository"
 	"github.com/supermarine1377/todoapp/app/internal/repository/mock"
@@ -130,6 +131,57 @@ func TestTaskRepository_CreateCtx(t *testing.T) {
 			tr := repository.NewTaskRepository(mockDB)
 			if err := tr.CreateCtx(context.Background(), &task.Task{}); (err != nil) != tt.wantErr {
 				t.Errorf("TaskRepository.CreateCtx() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestTaskRepository_GetCtx(t *testing.T) {
+	tests := []struct {
+		name        string
+		prepareMock func(t *testing.T) *mock.MockDB
+		wantErr     bool
+	}{
+		{
+			name: "No error",
+			prepareMock: func(t *testing.T) *mock.MockDB {
+				ctrl := gomock.NewController(t)
+				mockDB := mock.NewMockDB(ctrl)
+				mockDB.EXPECT().SelectWithIDCtx(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(nil)
+				return mockDB
+			},
+			wantErr: false,
+		},
+		{
+			name: "Got error",
+			prepareMock: func(t *testing.T) *mock.MockDB {
+				ctrl := gomock.NewController(t)
+				mockDB := mock.NewMockDB(ctrl)
+				mockDB.EXPECT().SelectWithIDCtx(
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+					gomock.Any(),
+				).Return(errors.New("error"))
+				return mockDB
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB := tt.prepareMock(t)
+			tr := repository.NewTaskRepository(mockDB)
+			_, err := tr.GetCtx(context.Background(), 1)
+			if !tt.wantErr {
+				require.NoError(t, err)
+			} else {
+				require.Error(t, err)
 			}
 		})
 	}

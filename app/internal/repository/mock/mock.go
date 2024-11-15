@@ -67,3 +67,17 @@ func (mr *MockDBMockRecorder) SelectCtx(ctx, p, columns, offset, limit any) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectCtx", reflect.TypeOf((*MockDB)(nil).SelectCtx), ctx, p, columns, offset, limit)
 }
+
+// SelectWithIDCtx mocks base method.
+func (m *MockDB) SelectWithIDCtx(ctx context.Context, p any, columns []string, id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectWithIDCtx", ctx, p, columns, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SelectWithIDCtx indicates an expected call of SelectWithIDCtx.
+func (mr *MockDBMockRecorder) SelectWithIDCtx(ctx, p, columns, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectWithIDCtx", reflect.TypeOf((*MockDB)(nil).SelectWithIDCtx), ctx, p, columns, id)
+}

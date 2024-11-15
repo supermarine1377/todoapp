@@ -26,6 +26,8 @@ type TaskRepository interface {
 	CreateCtx(ctx context.Context, task *task.Task) error
 	// task の一覧を返却する
 	ListCtx(ctx context.Context, offset, limit int) (*task.Tasks, error)
+	// taskを取得する
+	GetCtx(ctx context.Context, id int) (*task.Task, error)
 }
 
 // NewTaskHandler はTaskHandler を生成する
@@ -92,4 +94,23 @@ func (th *TaskHandler) List(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, tasks)
+}
+
+// Get はTaskを取得する
+func (th *TaskHandler) Get(c echo.Context) error {
+	var id int
+	var err error
+
+	if id, err = strconv.Atoi(c.Param("id")); err != nil {
+		return c.JSON(http.StatusBadRequest, nil)
+	}
+	ctx := c.Request().Context()
+	task, err := th.tr.GetCtx(ctx, id)
+	if err != nil {
+		if errors.Is(err, apperrors.ErrNotFound) {
+			return c.JSON(http.StatusNotFound, nil)
+		}
+		return c.JSON(http.StatusInternalServerError, nil)
+	}
+	return c.JSON(http.StatusOK, task)
 }

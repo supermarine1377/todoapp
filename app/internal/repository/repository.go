@@ -18,7 +18,8 @@ type TaskRepository struct {
 //go:generate mockgen -source=repository.go -destination=./mock/mock.go -package=mock
 type DB interface {
 	InsertCtx(ctx context.Context, p interface{}) error
-	SelectCtx(ctx context.Context, p interface{}, columns []string, offset, limit int) error
+	SelectListCtx(ctx context.Context, p interface{}, columns []string, offset, limit int) error
+	SelectWithIDCtx(ctx context.Context, p any, columns []string, id int) error
 }
 
 // NewTaskRepository はTaskRepositoryを生成する
@@ -37,7 +38,16 @@ func (tr *TaskRepository) CreateCtx(ctx context.Context, task *task.Task) error 
 func (tr *TaskRepository) ListCtx(ctx context.Context, offset, limit int) (*task.Tasks, error) {
 	var t task.Tasks
 	col := []string{"id", "title", "created_at", "updated_at"}
-	if err := tr.db.SelectCtx(ctx, &t, col, offset, limit); err != nil {
+	if err := tr.db.SelectListCtx(ctx, &t, col, offset, limit); err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func (tr *TaskRepository) GetCtx(ctx context.Context, id int) (*task.Task, error) {
+	var t task.Task
+	col := []string{"id", "title", "created_at", "updated_at"}
+	if err := tr.db.SelectWithIDCtx(ctx, &t, col, id); err != nil {
 		return nil, err
 	}
 	return &t, nil

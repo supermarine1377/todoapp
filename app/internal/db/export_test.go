@@ -8,6 +8,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/stretchr/testify/require"
+	"github.com/supermarine1377/todoapp/app/common/apperrors"
 	"github.com/supermarine1377/todoapp/app/internal/model/entity/task"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -154,10 +156,84 @@ func TestDB_ListCtx(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if err := db.SelectCtx(
+			if err := db.SelectListCtx(
 				context.Background(), tt.args.p, tt.args.columns, tt.args.offset, tt.args.limit,
 			); (err != nil) != tt.wantErr {
 				t.Errorf("DB.ListCtx() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestDB_SelectWithIDCtx(t *testing.T) {
+	type args struct {
+		p       any
+		columns []string
+		id      int
+	}
+	tests := []struct {
+		name      string
+		args      args
+		prepareDB func() (*DB, error)
+		wantErr   bool
+		error     error
+	}{
+		{
+			name: "Select successful",
+			args: args{
+				p:       &task.Task{},
+				columns: []string{"id", "title", "created_at", "updated_at"},
+				id:      1,
+			},
+			prepareDB: func() (*DB, error) {
+				db, mock, err := newMockDB()
+				if err != nil {
+					return nil, err
+				}
+				sql := "SELECT `id`,`title`,`created_at`,`updated_at` FROM `tasks` WHERE `tasks`.`id` = ? ORDER BY `tasks`.`id` LIMIT 1"
+				mock.ExpectQuery(regexp.QuoteMeta(sql)).
+					WithArgs(1).
+					WillReturnRows(sqlmock.NewRows([]string{"id", "title", "created_at", "updated_at"}).
+						AddRow(1, "hoge", 0, 0),
+					)
+				return db, nil
+			},
+			wantErr: false,
+		},
+		{
+			name: "Select successful but got no rows",
+			args: args{
+				p:       &task.Task{},
+				columns: []string{"id", "title", "created_at", "updated_at"},
+				id:      1,
+			},
+			prepareDB: func() (*DB, error) {
+				db, mock, err := newMockDB()
+				if err != nil {
+					return nil, err
+				}
+				sql := "SELECT `id`,`title`,`created_at`,`updated_at` FROM `tasks` WHERE `tasks`.`id` = ? ORDER BY `tasks`.`id` LIMIT 1"
+				mock.ExpectQuery(regexp.QuoteMeta(sql)).
+					WithArgs(1).
+					WillReturnRows(sqlmock.NewRows([]string{"id", "title", "created_at", "updated_at"}))
+				return db, nil
+			},
+			wantErr: true,
+			error:   apperrors.ErrNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, err := tt.prepareDB()
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = db.SelectWithIDCtx(context.Background(), tt.args.p, tt.args.columns, tt.args.id)
+			if !tt.wantErr {
+				require.NoError(t, err)
+			}
+			if tt.wantErr {
+				require.Error(t, err, tt.error)
 			}
 		})
 	}

@@ -3,7 +3,9 @@ package db
 
 import (
 	"context"
+	"errors"
 
+	"github.com/supermarine1377/todoapp/app/common/apperrors"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -37,12 +39,25 @@ func (db *DB) InsertCtx(ctx context.Context, p any) error {
 	return nil
 }
 
-// SelectCtx は、データの一覧を返す
-func (db *DB) SelectCtx(ctx context.Context, p any, columns []string, offset, limit int) error {
+// SelectListCtx は、データの一覧を返す
+func (db *DB) SelectListCtx(ctx context.Context, p any, columns []string, offset, limit int) error {
 	return db.g.WithContext(ctx).
 		Select(columns).
 		Offset(offset).
 		Limit(limit).
 		Find(p).
 		Error
+}
+
+// SelectWithIDCtx は、与えたidのデータを返す
+func (db *DB) SelectWithIDCtx(ctx context.Context, p any, columns []string, id int) error {
+	err := db.g.WithContext(ctx).
+		Select(columns).
+		First(p, id).
+		Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return apperrors.ErrNotFound
+	}
+	return err
 }

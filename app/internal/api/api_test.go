@@ -70,17 +70,17 @@ func (mc MockConfig) DSN() string {
 	return testDSN
 }
 
-func jsonUnmarshalToTasks(res io.Reader) (task.Tasks, error) {
+func jsonUnmarshal[T any](res io.Reader) (any, error) {
 	var buff bytes.Buffer
 	_, err := io.Copy(&buff, res)
 	if err != nil {
 		return nil, err
 	}
-	var tasks task.Tasks
-	if err := json.Unmarshal(buff.Bytes(), &tasks); err != nil {
+	var t T
+	if err := json.Unmarshal(buff.Bytes(), &t); err != nil {
 		return nil, err
 	}
-	return tasks, nil
+	return t, nil
 }
 
 var tasksInDB = task.Tasks{
@@ -116,10 +116,12 @@ var tasksInDB = task.Tasks{
 	},
 }
 
-var tasksAfterInsert = append(tasksInDB, &task.Task{
+var newTask = task.Task{
 	ID:    6,
 	Title: "hoge",
-})
+}
+
+var tasksAfterInsert = append(tasksInDB, &newTask)
 
 func TestServer_Run(t *testing.T) {
 	t.Cleanup(func() {
@@ -145,7 +147,7 @@ func TestServer_Run(t *testing.T) {
 			},
 			statusCode: http.StatusOK,
 			testResFunc: func(t *testing.T, res io.Reader) error {
-				tasks, err := jsonUnmarshalToTasks(res)
+				tasks, err := jsonUnmarshal[task.Tasks](res)
 				if err != nil {
 					return err
 				}
@@ -180,13 +182,33 @@ func TestServer_Run(t *testing.T) {
 			},
 			statusCode: http.StatusOK,
 			testResFunc: func(t *testing.T, res io.Reader) error {
-				tasks, err := jsonUnmarshalToTasks(res)
+				tasks, err := jsonUnmarshal[task.Tasks](res)
 				if err != nil {
 					return err
 				}
 				if diff := cmp.Diff(
 					tasks,
 					tasksAfterInsert,
+					cmpopts.IgnoreFields(task.Task{}, "CreatedAt", "UpdatedAt")); diff != "" {
+					t.Error(diff)
+				}
+				return nil
+			},
+		},
+		{
+			name: "GET task id =6",
+			prepareReq: func() (*http.Request, error) {
+				return http.NewRequest(http.MethodGet, "http://localhost:8080/tasks/6", nil)
+			},
+			statusCode: http.StatusOK,
+			testResFunc: func(t *testing.T, res io.Reader) error {
+				ta, err := jsonUnmarshal[task.Task](res)
+				if err != nil {
+					return err
+				}
+				if diff := cmp.Diff(
+					ta,
+					newTask,
 					cmpopts.IgnoreFields(task.Task{}, "CreatedAt", "UpdatedAt")); diff != "" {
 					t.Error(diff)
 				}
