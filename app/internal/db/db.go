@@ -30,6 +30,7 @@ func NewDB(config Config) (*DB, error) {
 }
 
 // InsertCtx は、トランザクション内でデータを挿入する
+// p は任意の型のポインタでなければならない
 func (db *DB) InsertCtx(ctx context.Context, p any) error {
 	if err := db.g.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		return tx.Create(p).Error
@@ -40,6 +41,7 @@ func (db *DB) InsertCtx(ctx context.Context, p any) error {
 }
 
 // SelectListCtx は、データの一覧を返す
+// p は任意の型のポインタでなければならない
 func (db *DB) SelectListCtx(ctx context.Context, p any, columns []string, offset, limit int) error {
 	return db.g.WithContext(ctx).
 		Select(columns).
@@ -50,6 +52,7 @@ func (db *DB) SelectListCtx(ctx context.Context, p any, columns []string, offset
 }
 
 // SelectWithIDCtx は、与えたidのデータを返す
+// p は任意の型のポインタでなければならない
 func (db *DB) SelectWithIDCtx(ctx context.Context, p any, columns []string, id int) error {
 	err := db.g.WithContext(ctx).
 		Select(columns).
