@@ -33,7 +33,7 @@ func TestTaskRepository_ListCtx(t *testing.T) {
 			prepareMock: func(t *testing.T) *mock.MockDB {
 				ctrl := gomock.NewController(t)
 				mockDB := mock.NewMockDB(ctrl)
-				mockDB.EXPECT().SelectCtx(
+				mockDB.EXPECT().SelectListCtx(
 					gomock.Any(),
 					gomock.Any(),
 					gomock.Any(),
@@ -53,7 +53,7 @@ func TestTaskRepository_ListCtx(t *testing.T) {
 			prepareMock: func(t *testing.T) *mock.MockDB {
 				ctrl := gomock.NewController(t)
 				mockDB := mock.NewMockDB(ctrl)
-				mockDB.EXPECT().SelectCtx(
+				mockDB.EXPECT().SelectListCtx(
 					gomock.Any(),
 					gomock.Any(),
 					gomock.Any(),
