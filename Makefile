@@ -11,6 +11,7 @@ test:
 
 lint:
 	golangci-lint run
+	staticcheck ./...
 
 migrate-sqlite:
 	sqlite3def _data/sqlite.db -f _migration/sqlite/schema.sql 
