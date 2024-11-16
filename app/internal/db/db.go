@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	"github.com/supermarine1377/todoapp/app/common/apperrors"
-	"gorm.io/driver/sqlite"
+	"github.com/supermarine1377/todoapp/app/internal/db/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -15,15 +15,26 @@ type DB struct {
 	g *gorm.DB
 }
 
-// Config はデータベースを抽象化する
+// Config はデータベースの設定を抽象化する
 type Config interface {
 	DSN() string
 }
 
 // NewDB はDBを生成する
 func NewDB(config Config) (*DB, error) {
-	g, err := gorm.Open(sqlite.Open(config.DSN()), &gorm.Config{})
+	sqlite, err := sqlite.New(config)
 	if err != nil {
+		return nil, err
+	}
+	g, err := gorm.Open(sqlite)
+	if err != nil {
+		return nil, err
+	}
+	db, err := g.DB()
+	if err != nil {
+		return nil, err
+	}
+	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 	return &DB{g: g}, nil
