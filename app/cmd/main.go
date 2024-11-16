@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,6 +19,7 @@ func main() {
 	defer stop()
 
 	if err := app.Run(ctx); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to run app: %v\n", err)
 		os.Exit(1)
 	}
 }
