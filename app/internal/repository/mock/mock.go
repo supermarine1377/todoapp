@@ -54,16 +54,30 @@ func (mr *MockDBMockRecorder) InsertCtx(ctx, p any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertCtx", reflect.TypeOf((*MockDB)(nil).InsertCtx), ctx, p)
 }
 
-// SelectCtx mocks base method.
-func (m *MockDB) SelectCtx(ctx context.Context, p any, columns []string, offset, limit int) error {
+// SelectListCtx mocks base method.
+func (m *MockDB) SelectListCtx(ctx context.Context, p any, columns []string, offset, limit int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectCtx", ctx, p, columns, offset, limit)
+	ret := m.ctrl.Call(m, "SelectListCtx", ctx, p, columns, offset, limit)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SelectCtx indicates an expected call of SelectCtx.
-func (mr *MockDBMockRecorder) SelectCtx(ctx, p, columns, offset, limit any) *gomock.Call {
+// SelectListCtx indicates an expected call of SelectListCtx.
+func (mr *MockDBMockRecorder) SelectListCtx(ctx, p, columns, offset, limit any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectCtx", reflect.TypeOf((*MockDB)(nil).SelectCtx), ctx, p, columns, offset, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectListCtx", reflect.TypeOf((*MockDB)(nil).SelectListCtx), ctx, p, columns, offset, limit)
+}
+
+// SelectWithIDCtx mocks base method.
+func (m *MockDB) SelectWithIDCtx(ctx context.Context, p any, columns []string, id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectWithIDCtx", ctx, p, columns, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SelectWithIDCtx indicates an expected call of SelectWithIDCtx.
+func (mr *MockDBMockRecorder) SelectWithIDCtx(ctx, p, columns, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectWithIDCtx", reflect.TypeOf((*MockDB)(nil).SelectWithIDCtx), ctx, p, columns, id)
 }

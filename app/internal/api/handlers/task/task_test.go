@@ -1,9 +1,11 @@
 package task_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -279,6 +281,107 @@ func TestTaskHandler_List(t *testing.T) {
 					t.Fatal(err)
 				}
 				assert.Equal(t, tasks, tasksInDB)
+			}
+		})
+	}
+}
+
+var taskInDB = entity_task.Task{ID: 1}
+
+func TestTaskHandler_Get(t *testing.T) {
+	e := echo.New()
+
+	tests := []struct {
+		name        string
+		id          string
+		req         func() *http.Request
+		prepareMock func() *mock.MockTaskRepository
+		wantErr     bool
+		statusCode  int
+		resBody     entity_task.Task
+	}{
+		{
+			name: "Fetch task successfully",
+			id:   "1",
+			req: func() *http.Request {
+				return httptest.NewRequest(http.MethodGet, "/tasks/1", nil)
+			},
+			prepareMock: func() *mock.MockTaskRepository {
+				ctrl := gomock.NewController(t)
+				m := mock.NewMockTaskRepository(ctrl)
+				m.EXPECT().GetCtx(gomock.Any(), 1).Return(&taskInDB, nil)
+				return m
+			},
+			wantErr:    false,
+			statusCode: http.StatusOK,
+			resBody:    taskInDB,
+		},
+		{
+			name: "Invalid request",
+			id:   "hoge",
+			req: func() *http.Request {
+				return httptest.NewRequest(http.MethodGet, "/tasks/hoge", nil)
+			},
+			prepareMock: func() *mock.MockTaskRepository { return nil },
+			wantErr:     false,
+			statusCode:  http.StatusBadRequest,
+		},
+		{
+			name: "Internal server error",
+			id:   "1",
+			req: func() *http.Request {
+				return httptest.NewRequest(http.MethodGet, "/tasks/1", nil)
+			},
+			prepareMock: func() *mock.MockTaskRepository {
+				ctrl := gomock.NewController(t)
+				m := mock.NewMockTaskRepository(ctrl)
+				m.EXPECT().GetCtx(gomock.Any(), 1).Return(nil, errors.New("error"))
+				return m
+			},
+			statusCode: http.StatusInternalServerError,
+		},
+		{
+			name: "Not found",
+			id:   "1",
+			req: func() *http.Request {
+				return httptest.NewRequest(http.MethodGet, "/tasks/1", nil)
+			},
+			prepareMock: func() *mock.MockTaskRepository {
+				ctrl := gomock.NewController(t)
+				m := mock.NewMockTaskRepository(ctrl)
+				m.EXPECT().GetCtx(gomock.Any(), 1).Return(nil, apperrors.ErrNotFound)
+				return m
+			},
+			wantErr:    false,
+			statusCode: http.StatusNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := tt.prepareMock()
+			th := task.NewTaskHandler(m)
+			rc := httptest.NewRecorder()
+			c := e.NewContext(tt.req(), rc)
+			c.SetParamNames("id")
+			c.SetParamValues(tt.id)
+
+			if err := th.Get(c); (err != nil) != tt.wantErr {
+				t.Errorf("TaskHandler.Get() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			res := rc.Result()
+			assert.Equal(t, tt.statusCode, res.StatusCode)
+			if tt.resBody != (entity_task.Task{}) {
+				var got entity_task.Task
+				var buff bytes.Buffer
+				defer func() {
+					_ = res.Body.Close()
+				}()
+				_, _ = io.Copy(&buff, res.Body)
+				if err := json.Unmarshal(buff.Bytes(), &got); err != nil {
+					t.Fatal(err)
+				}
+				assert.Equal(t, tt.resBody, got)
 			}
 		})
 	}

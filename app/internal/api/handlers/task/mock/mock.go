@@ -55,6 +55,21 @@ func (mr *MockTaskRepositoryMockRecorder) CreateCtx(ctx, task any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCtx", reflect.TypeOf((*MockTaskRepository)(nil).CreateCtx), ctx, task)
 }
 
+// GetCtx mocks base method.
+func (m *MockTaskRepository) GetCtx(ctx context.Context, id int) (*task.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCtx", ctx, id)
+	ret0, _ := ret[0].(*task.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCtx indicates an expected call of GetCtx.
+func (mr *MockTaskRepositoryMockRecorder) GetCtx(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCtx", reflect.TypeOf((*MockTaskRepository)(nil).GetCtx), ctx, id)
+}
+
 // ListCtx mocks base method.
 func (m *MockTaskRepository) ListCtx(ctx context.Context, offset, limit int) (*task.Tasks, error) {
 	m.ctrl.T.Helper()
