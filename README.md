@@ -30,5 +30,6 @@ make migrate-sqlite
 ## Development dependencies
 
 - [golangci-lint](https://github.com/golangci/golangci-lint)
+- [staticcheck](https://staticcheck.dev/docs/)
 - [gomock](https://github.com/uber-go/mock)
 - [asdf](https://asdf-vm.com/)

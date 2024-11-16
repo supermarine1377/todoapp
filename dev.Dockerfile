@@ -18,6 +18,7 @@ RUN curl -O https://raw.githubusercontent.com/git/git/master/contrib/completion/
 
 # Install development dependencies    
 RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.61.0 && \
+    go install honnef.co/go/tools/cmd/staticcheck@latest && \
     go install go.uber.org/mock/mockgen@v0.5.0 && \
     curl -L https://github.com/sqldef/sqldef/releases/download/v0.17.23/sqlite3def_linux_amd64.tar.gz \
         -o sqlite3def_linux_amd64.tar.gz && \
