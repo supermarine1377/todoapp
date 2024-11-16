@@ -10,13 +10,21 @@ I'm implementing basic TODO app using Go.
 go run app/cmd/main.go
 ```
 
-## Deelopment
+## Deelopment setup
 
 Open this repository in VSCode and go to the Command pallete (Cmd+Shift+P) and type “Remote-Containers: Reopen in Container” and select it.
 
 Or you can build Docker image with:
 ```sh
 make build
+```
+
+Then log in the container.
+
+In the container, run this command:
+
+```sh
+make migrate-sqlite
 ```
 
 ## Development dependencies
