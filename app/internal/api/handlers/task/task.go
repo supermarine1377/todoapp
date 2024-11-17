@@ -38,6 +38,16 @@ func NewTaskHandler(tr TaskRepository) *TaskHandler {
 }
 
 // Create はTaskを登録する
+// @Summary		タスクを登録する
+// @Description	タスクを登録する
+// @Accept			json
+// @Produce		json
+// @Param			task	body	task.Task	true	"登録するタスク情報"
+// @Success		201		{object}	nil	"タスクが正常に作成された場合"
+// @Failure		400		{object}	string	"不正なリクエスト（バリデーションエラーやリクエスト形式のエラー）"
+// @Failure		415		{object}	nil	"サポートされていないメディアタイプ"
+// @Failure		500		{object}	nil	"内部サーバーエラー"
+// @Router			/tasks [post]
 func (th *TaskHandler) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 	var task task.Task
@@ -68,7 +78,17 @@ func (th *TaskHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, nil)
 }
 
-// List はTaskの一覧を返却する
+// List はタスク一覧を取得する
+// @Summary		タスク一覧を取得する
+// @Description	指定されたオフセットとリミットでタスクの一覧を返します
+// @Accept			json
+// @Produce		json
+// @Param			offset	query		int	false	"結果の開始位置（デフォルト: 0）"
+// @Param			limit	query		int	false	"取得するタスクの最大数（デフォルト: 10）"
+// @Success		200		{array}		task.Task	"タスク一覧の取得に成功した場合"
+// @Failure		400		{object}	nil			"不正なリクエスト（オフセットまたはリミットが数値でない場合）"
+// @Failure		500		{object}	nil			"内部サーバーエラー"
+// @Router			/tasks [get]
 func (th *TaskHandler) List(c echo.Context) error {
 	var offset int
 	var err error
@@ -97,6 +117,16 @@ func (th *TaskHandler) List(c echo.Context) error {
 }
 
 // Get はTaskを取得する
+// @Summary		タスクを取得する
+// @Description	指定されたIDに対応するタスクを返します
+// @Accept			json
+// @Produce		json
+// @Param			id		path		int		true	"タスクのID"
+// @Success		200		{object}	task.Task	"指定されたIDのタスクを正常に取得"
+// @Failure		400		{object}	nil			"不正なリクエスト（IDが数値でない場合）"
+// @Failure		404		{object}	nil			"指定されたIDのタスクが存在しない場合"
+// @Failure		500		{object}	nil			"内部サーバーエラー"
+// @Router			/tasks/{id} [get]
 func (th *TaskHandler) Get(c echo.Context) error {
 	var id int
 	var err error

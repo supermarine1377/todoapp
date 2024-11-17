@@ -10,6 +10,9 @@ import (
 	"github.com/supermarine1377/todoapp/app"
 )
 
+// @title			タスク管理用のAPI
+// @version		0.01
+// @description	タスク管理用のAPI
 func main() {
 	ctx, stop := signal.NotifyContext(
 		context.Background(),
