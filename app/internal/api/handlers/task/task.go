@@ -40,6 +40,9 @@ func NewTaskHandler(tr TaskRepository) *TaskHandler {
 // Create はTaskを登録する
 // @Summary		タスクを登録する
 // @Description	タスクを登録する
+//
+//	@Tags			tasks
+//
 // @Accept			json
 // @Produce		json
 // @Param			task	body	task.Task	true	"登録するタスク情報"
@@ -81,6 +84,9 @@ func (th *TaskHandler) Create(c echo.Context) error {
 // List はタスク一覧を取得する
 // @Summary		タスク一覧を取得する
 // @Description	指定されたオフセットとリミットでタスクの一覧を返します
+//
+//	@Tags			tasks
+//
 // @Accept			json
 // @Produce		json
 // @Param			offset	query		int	false	"結果の開始位置（デフォルト: 0）"
@@ -119,6 +125,9 @@ func (th *TaskHandler) List(c echo.Context) error {
 // Get はTaskを取得する
 // @Summary		タスクを取得する
 // @Description	指定されたIDに対応するタスクを返します
+//
+//	@Tags			tasks
+//
 // @Accept			json
 // @Produce		json
 // @Param			id		path		int		true	"タスクのID"
