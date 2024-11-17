@@ -11,7 +11,7 @@ import (
 //
 //	@Summary サーバーの死活監視用のAPI
 //	@Description	サーバーの死活監視用のAPI
-//	@Tags			accounts
+//	@Tags			healthz
 //	@Accept			json
 //	@Produce		json
 //	@Success		200
