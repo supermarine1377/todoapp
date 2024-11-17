@@ -25,7 +25,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "healthz"
                 ],
                 "summary": "サーバーの死活監視用のAPI",
                 "responses": {
@@ -43,6 +43,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "tasks"
                 ],
                 "summary": "タスク一覧を取得する",
                 "parameters": [
@@ -85,6 +88,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "tasks"
+                ],
                 "summary": "タスクを登録する",
                 "parameters": [
                     {
@@ -124,6 +130,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "tasks"
                 ],
                 "summary": "タスクを取得する",
                 "parameters": [
