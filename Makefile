@@ -15,3 +15,7 @@ lint:
 
 migrate-sqlite:
 	sqlite3def _data/sqlite.db -f _migration/sqlite/schema.sql 
+
+.PHONY: docs
+docs:
+	swag init -g app/cmd/main.go

@@ -1,0 +1,172 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "タスク管理用のAPI",
+        "title": "タスク管理用のAPI",
+        "contact": {},
+        "version": "0.01"
+    },
+    "paths": {
+        "/healthz": {
+            "get": {
+                "description": "サーバーの死活監視用のAPI",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "サーバーの死活監視用のAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/tasks": {
+            "get": {
+                "description": "指定されたオフセットとリミットでタスクの一覧を返します",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "タスク一覧を取得する",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "結果の開始位置（デフォルト: 0）",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "取得するタスクの最大数（デフォルト: 10）",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "タスク一覧の取得に成功した場合",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/task.Task"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "不正なリクエスト（オフセットまたはリミットが数値でない場合）"
+                    },
+                    "500": {
+                        "description": "内部サーバーエラー"
+                    }
+                }
+            },
+            "post": {
+                "description": "タスクを登録する",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "タスクを登録する",
+                "parameters": [
+                    {
+                        "description": "登録するタスク情報",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/task.Task"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "タスクが正常に作成された場合"
+                    },
+                    "400": {
+                        "description": "不正なリクエスト（バリデーションエラーやリクエスト形式のエラー）",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "415": {
+                        "description": "サポートされていないメディアタイプ"
+                    },
+                    "500": {
+                        "description": "内部サーバーエラー"
+                    }
+                }
+            }
+        },
+        "/tasks/{id}": {
+            "get": {
+                "description": "指定されたIDに対応するタスクを返します",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "タスクを取得する",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "タスクのID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "指定されたIDのタスクを正常に取得",
+                        "schema": {
+                            "$ref": "#/definitions/task.Task"
+                        }
+                    },
+                    "400": {
+                        "description": "不正なリクエスト（IDが数値でない場合）"
+                    },
+                    "404": {
+                        "description": "指定されたIDのタスクが存在しない場合"
+                    },
+                    "500": {
+                        "description": "内部サーバーエラー"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "task.Task": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "created_at": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}
