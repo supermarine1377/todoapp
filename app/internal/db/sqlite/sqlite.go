@@ -14,14 +14,14 @@ type Config interface {
 	DSN() string
 }
 
-// ErrNoSuchFileOrDir は、DSNのファイルが見つからなったエラー
-var ErrNoSuchFileOrDir = errors.New("no such file or directory")
+// ErrSQLiteFileNotFound はSQLiteのファイルが見つからなかったエラー
+var ErrSQLiteFileNotFound = errors.New("error: SQLite file not found")
 
-// ErrIsADirは、DSNがディレクトリだったエラー
-var ErrIsADir = errors.New("is a directory, not a file")
+// ErrPathIsDirectory は指定のパスがファイルでなくディレクトリを指しているときのエラー
+var ErrPathIsDirectory = errors.New("error: path points to a directory, not a file")
 
-// ErrFileNotAccessble は、DSNのファイルが十分なパーミッションがなかったエラー
-var ErrFileNotAccessble = errors.New("file is not accessible with read/write permissions")
+// ErrFileLacksPermissions はDSNファイルの読み込み/書き込み権限がユーザーにないことを表す
+var ErrFileLacksPermissions = errors.New("error: file lacks read/write permissions for user")
 
 // New は、SQLiteのgorm.Dialectorを返す
 func New(config Config) (gorm.Dialector, error) {
@@ -29,11 +29,11 @@ func New(config Config) (gorm.Dialector, error) {
 	fi, err := os.Stat(dsn)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("%s: %w", dsn, ErrNoSuchFileOrDir)
+			return nil, fmt.Errorf("%s: %w", dsn, ErrSQLiteFileNotFound)
 		}
 	}
 	if fi.IsDir() {
-		return nil, fmt.Errorf("%s %w", dsn, ErrIsADir)
+		return nil, fmt.Errorf("%s %w", dsn, ErrPathIsDirectory)
 	}
 
 	file, err := os.OpenFile(dsn, os.O_RDWR, 0)
@@ -42,7 +42,7 @@ func New(config Config) (gorm.Dialector, error) {
 	}()
 
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w: %w", dsn, ErrFileNotAccessble, err)
+		return nil, fmt.Errorf("%s: %w: %w", dsn, ErrFileLacksPermissions, err)
 	}
 
 	return sqlite.Open(dsn), nil
