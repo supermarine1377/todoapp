@@ -43,7 +43,7 @@ func TestNew(t *testing.T) {
 				return dummy, nil
 			},
 			wantErr: true,
-			err:     sqlite.ErrNoSuchFileOrDir,
+			err:     sqlite.ErrSQLiteFileNotFound,
 		},
 		{
 			name: "File without write permission",
@@ -56,7 +56,7 @@ func TestNew(t *testing.T) {
 				return f.Name(), nil
 			},
 			wantErr: true,
-			err:     sqlite.ErrFileNotAccessble,
+			err:     sqlite.ErrFileLacksPermissions,
 		},
 	}
 	for _, tt := range tests {
