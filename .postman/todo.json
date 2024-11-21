@@ -1,0 +1,92 @@
+{
+    "info": {
+        "_postman_id": "e6ead73d-857d-4ad3-84f1-e00dac06cc70",
+        "name": "todo",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "description": ""
+    },
+    "item": [
+        {
+            "name": "create task",
+            "request": {
+                "method": "POST",
+                "url": {
+                    "raw": "localhost:8080/tasks",
+                    "path": [
+                        "tasks"
+                    ],
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080"
+                },
+                "body": {
+                    "mode": "raw",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    },
+                    "raw": "{\n  \"title\": \"Learn Golang\"\n}"
+                }
+            }
+        },
+        {
+            "name": "helathz",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "localhost:8080/healthz",
+                    "path": [
+                        "healthz"
+                    ],
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080"
+                }
+            }
+        },
+        {
+            "name": "list tasks",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "localhost:8080/tasks",
+                    "query": [
+                        {
+                            "key": "offset",
+                            "value": "1",
+                            "disabled": true
+                        }
+                    ],
+                    "variable": [],
+                    "path": [
+                        "tasks"
+                    ],
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080"
+                }
+            }
+        },
+        {
+            "name": "get task",
+            "request": {
+                "method": "GET",
+                "url": {
+                    "raw": "localhost:8080/tasks/1",
+                    "path": [
+                        "tasks",
+                        "1"
+                    ],
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8080"
+                }
+            }
+        }
+    ]
+}
