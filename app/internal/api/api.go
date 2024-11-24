@@ -4,11 +4,13 @@ package api
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
+	"github.com/supermarine1377/todoapp/app/common/logger"
+	"github.com/supermarine1377/todoapp/app/common/request_id"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/healthz"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task"
 	"github.com/supermarine1377/todoapp/app/internal/db"
@@ -33,9 +35,42 @@ type Config interface {
 func NewServer(config Config) *Server {
 	e := echo.New()
 
-	e.Logger.SetLevel(log.INFO)
-	e.Use(middleware.Logger())
+	logger := slog.New(logger.NewHandler())
+	slog.SetDefault(logger)
+
 	e.Use(middleware.Recover())
+	e.Use(middleware.RequestIDWithConfig(middleware.RequestIDConfig{
+		RequestIDHandler: func(c echo.Context, requestID string) {
+			req := c.Request()
+			newCtx := request_id.Set(req.Context(), requestID)
+			newReq := req.WithContext(newCtx)
+			c.SetRequest(newReq)
+		},
+	}))
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogStatus:   true,
+		LogURI:      true,
+		LogError:    true,
+		HandleError: true, // forwards error to the global error handler, so it can decide appropriate status code
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			ctx := c.Request().Context()
+			if v.Error == nil {
+				logger.LogAttrs(ctx, slog.LevelInfo, "REQUEST",
+					slog.String("method", c.Request().Method),
+					slog.String("uri", v.URI),
+					slog.Int("status", v.Status),
+				)
+			} else {
+				logger.LogAttrs(ctx, slog.LevelError, "REQUEST_ERROR",
+					slog.String("method", c.Request().Method),
+					slog.String("uri", v.URI),
+					slog.Int("status", v.Status),
+					slog.String("err", v.Error.Error()),
+				)
+			}
+			return nil
+		},
+	}))
 
 	return &Server{
 		config: config,
