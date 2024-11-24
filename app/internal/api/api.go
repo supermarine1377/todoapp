@@ -4,13 +4,15 @@ package api
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/log"
+	"github.com/supermarine1377/todoapp/app/common/logger"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/healthz"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task"
+	"github.com/supermarine1377/todoapp/app/internal/api/my_middleware"
 	"github.com/supermarine1377/todoapp/app/internal/db"
 	"github.com/supermarine1377/todoapp/app/internal/repository"
 	"golang.org/x/sync/errgroup"
@@ -21,6 +23,7 @@ type Server struct {
 	// Portは、APIを公開するポートを表す
 	config Config
 	e      *echo.Echo
+	db     *db.DB
 }
 
 // Configは、Serverの設定を抽象化する
@@ -30,17 +33,26 @@ type Config interface {
 }
 
 // NewServer は、Serverを作成する
-func NewServer(config Config) *Server {
+func NewServer(config Config) (*Server, error) {
+	db, err := db.NewDB(config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect database: %w", err)
+	}
+
 	e := echo.New()
 
-	e.Logger.SetLevel(log.INFO)
-	e.Use(middleware.Logger())
+	logger := slog.New(logger.NewHandler())
+	slog.SetDefault(logger)
+
 	e.Use(middleware.Recover())
+	e.Use(my_middleware.RequestID())
+	e.Use(my_middleware.Log(logger))
 
 	return &Server{
 		config: config,
 		e:      e,
-	}
+		db:     db,
+	}, nil
 }
 
 // Runは、Serverを起動する
@@ -54,15 +66,11 @@ func NewServer(config Config) *Server {
 func (s *Server) Run(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
-	db, err := db.NewDB(s.config)
-	if err != nil {
-		return fmt.Errorf("failed to connect database: %w", err)
-	}
 	{
 		s.e.Add(http.MethodGet, "/healthz", healthz.Healthz)
 	}
 	{
-		tr := repository.NewTaskRepository(db)
+		tr := repository.NewTaskRepository(s.db)
 		th := task.NewTaskHandler(tr)
 		s.e.Add(http.MethodPost, "/tasks", th.Create)
 		s.e.Add(http.MethodGet, "/tasks", th.List)
@@ -71,9 +79,10 @@ func (s *Server) Run(ctx context.Context) error {
 
 	eg.Go(func() error {
 		addr := fmt.Sprintf(":%d", s.config.Port())
-		s.e.Logger.Info("Start sever")
+		slog.Info("start server")
 		if err := s.e.Start(addr); err != http.ErrServerClosed {
-			s.e.Logger.Error("failed to start server: %w", err)
+			slog.Error("failed to start server", "err", err)
+			s.e.Logger.Errorf("failed tto start server: %w", err)
 		}
 		return nil
 	})
@@ -81,7 +90,7 @@ func (s *Server) Run(ctx context.Context) error {
 	<-ctx.Done()
 	s.e.Logger.Info("Shutting down server gracefully")
 	if err := s.e.Shutdown(context.Background()); err != nil {
-		s.e.Logger.Errorf("Failed to shutdown server: %w", err)
+		slog.Error("failed to shutdown server", "err", err)
 	}
 
 	// Goメソッドで起動した別ゴールーチンの起動を待つ

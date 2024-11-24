@@ -15,7 +15,10 @@ func Run(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	server := api.NewServer(config)
+	server, err := api.NewServer(config)
+	if err != nil {
+		return err
+	}
 
 	if err := server.Run(ctx); err != nil {
 		return err

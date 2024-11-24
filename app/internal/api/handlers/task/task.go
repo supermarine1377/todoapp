@@ -4,6 +4,7 @@ package task
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -74,7 +75,7 @@ func (th *TaskHandler) Create(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, nil)
 		}
 		if errors.Is(err, apperrors.ErrInternalServerError) {
-			c.Logger().Error("Failed to create Task: %w", err)
+			slog.Error("failed to create task", "err", err)
 			return c.JSON(http.StatusInternalServerError, nil)
 		}
 	}
