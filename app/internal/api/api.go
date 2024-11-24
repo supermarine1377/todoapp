@@ -23,6 +23,7 @@ type Server struct {
 	// Portは、APIを公開するポートを表す
 	config Config
 	e      *echo.Echo
+	db     *db.DB
 }
 
 // Configは、Serverの設定を抽象化する
@@ -32,7 +33,12 @@ type Config interface {
 }
 
 // NewServer は、Serverを作成する
-func NewServer(config Config) *Server {
+func NewServer(config Config) (*Server, error) {
+	db, err := db.NewDB(config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect database: %w", err)
+	}
+
 	e := echo.New()
 
 	logger := slog.New(logger.NewHandler())
@@ -45,7 +51,8 @@ func NewServer(config Config) *Server {
 	return &Server{
 		config: config,
 		e:      e,
-	}
+		db:     db,
+	}, nil
 }
 
 // Runは、Serverを起動する
@@ -59,15 +66,11 @@ func NewServer(config Config) *Server {
 func (s *Server) Run(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 
-	db, err := db.NewDB(s.config)
-	if err != nil {
-		return fmt.Errorf("failed to connect database: %w", err)
-	}
 	{
 		s.e.Add(http.MethodGet, "/healthz", healthz.Healthz)
 	}
 	{
-		tr := repository.NewTaskRepository(db)
+		tr := repository.NewTaskRepository(s.db)
 		th := task.NewTaskHandler(tr)
 		s.e.Add(http.MethodPost, "/tasks", th.Create)
 		s.e.Add(http.MethodGet, "/tasks", th.List)

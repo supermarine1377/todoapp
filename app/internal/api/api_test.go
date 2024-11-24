@@ -216,7 +216,10 @@ func TestServer_Run(t *testing.T) {
 			},
 		},
 	}
-	server := api.NewServer(MockConfig{})
+	server, err := api.NewServer(MockConfig{})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	eg, ctx := errgroup.WithContext(ctx)
