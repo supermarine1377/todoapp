@@ -79,9 +79,10 @@ func (s *Server) Run(ctx context.Context) error {
 
 	eg.Go(func() error {
 		addr := fmt.Sprintf(":%d", s.config.Port())
-		s.e.Logger.Info("Start sever")
+		slog.Info("start server")
 		if err := s.e.Start(addr); err != http.ErrServerClosed {
-			s.e.Logger.Error("failed to start server: %w", err)
+			slog.Error("failed to start server", "err", err)
+			s.e.Logger.Errorf("failed tto start server: %w", err)
 		}
 		return nil
 	})
@@ -89,7 +90,7 @@ func (s *Server) Run(ctx context.Context) error {
 	<-ctx.Done()
 	s.e.Logger.Info("Shutting down server gracefully")
 	if err := s.e.Shutdown(context.Background()); err != nil {
-		s.e.Logger.Errorf("Failed to shutdown server: %w", err)
+		slog.Error("failed to shutdown server", "err", err)
 	}
 
 	// Goメソッドで起動した別ゴールーチンの起動を待つ
