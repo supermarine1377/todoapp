@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/supermarine1377/todoapp/app/common/logger"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/healthz"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task"
@@ -44,7 +43,7 @@ func NewServer(config Config) (*Server, error) {
 	logger := slog.New(logger.NewHandler())
 	slog.SetDefault(logger)
 
-	e.Use(middleware.Recover())
+	e.Use(my_middleware.Recover(logger))
 	e.Use(my_middleware.RequestID())
 	e.Use(my_middleware.Log(logger))
 
