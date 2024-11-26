@@ -1,6 +1,9 @@
 package healthz_test
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,5 +23,17 @@ func TestHealthz(t *testing.T) {
 		if assert.NoError(t, healthz.Healthz(c)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 		}
+
+		var buff bytes.Buffer
+		_, _ = io.Copy(&buff, rec.Body)
+
+		res := struct {
+			Status string `json:"status"`
+		}{}
+		if err := json.Unmarshal(buff.Bytes(), &res); err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, "healthy", res.Status)
 	})
 }

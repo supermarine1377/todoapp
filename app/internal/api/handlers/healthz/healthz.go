@@ -17,5 +17,5 @@ import (
 //	@Success		200
 //	@Router			/healthz [get]
 func Healthz(c echo.Context) error {
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, map[string]string{"status": "healthy"})
 }
