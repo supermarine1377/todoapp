@@ -28,7 +28,7 @@ type Server struct {
 // Configは、Serverの設定を抽象化する
 type Config interface {
 	Port() int
-	DSN() string
+	db.Config
 }
 
 // NewServer は、Serverを作成する
