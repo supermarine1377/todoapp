@@ -15,13 +15,13 @@ type DB struct {
 	g *gorm.DB
 }
 
-// Config はデータベースの設定を抽象化する
-type Config interface {
+// DBConfig はデータベースの設定を抽象化する
+type DBConfig interface {
 	DSN() string
 }
 
 // NewDB はDBを生成する
-func NewDB(config Config) (*DB, error) {
+func NewDB(config DBConfig) (*DB, error) {
 	sqlite, err := sqlite.New(config)
 	if err != nil {
 		return nil, err
