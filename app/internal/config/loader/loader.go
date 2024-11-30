@@ -19,6 +19,8 @@ type Config struct {
 type DB struct {
 	// DSN はDBの接続情報を表す設定
 	DSN string `env:"DATABASE_DSN"`
+	// Type はDBの種類を表す設定
+	Type string `env:"DATABASE_TYPE" envDefault:"sqlite"`
 }
 
 // Parse は、サーバーの設定をパースする

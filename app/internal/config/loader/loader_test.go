@@ -10,8 +10,9 @@ import (
 )
 
 type envVar struct {
-	Port string
-	DSN  string
+	Port   string
+	DSN    string
+	DBType string
 }
 
 func init() {
@@ -25,6 +26,9 @@ func (ev *envVar) Set(t *testing.T) {
 	if ev.DSN != "" {
 		t.Setenv("DATABASE_DSN", ev.DSN)
 	}
+	if ev.DBType != "" {
+		t.Setenv("DATABASE_TYPE", ev.DBType)
+	}
 }
 
 func TestParse(t *testing.T) {
@@ -37,13 +41,15 @@ func TestParse(t *testing.T) {
 		{
 			name: "When PORT environemnt variable is set",
 			envVar: envVar{
-				Port: "8080",
-				DSN:  "path",
+				Port:   "8080",
+				DSN:    "path",
+				DBType: "postgres",
 			},
 			want: &loader.Config{
 				Port: 8080,
 				DB: loader.DB{
-					DSN: "path",
+					DSN:  "path",
+					Type: "postgres",
 				},
 			},
 			wantErr: false,
@@ -52,7 +58,9 @@ func TestParse(t *testing.T) {
 			name: "When PORT environemnt variable is not set",
 			want: &loader.Config{
 				Port: 8080,
-				DB:   loader.DB{},
+				DB: loader.DB{
+					Type: "sqlite",
+				},
 			},
 			wantErr: false,
 		},
