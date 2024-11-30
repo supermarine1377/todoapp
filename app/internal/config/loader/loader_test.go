@@ -43,8 +43,7 @@ func TestParse(t *testing.T) {
 			want: &loader.Config{
 				Port: 8080,
 				DB: loader.DB{
-					UseSQLite: true,
-					DSN:       "path",
+					DSN: "path",
 				},
 			},
 			wantErr: false,
@@ -53,9 +52,7 @@ func TestParse(t *testing.T) {
 			name: "When PORT environemnt variable is not set",
 			want: &loader.Config{
 				Port: 8080,
-				DB: loader.DB{
-					UseSQLite: true,
-				},
+				DB:   loader.DB{},
 			},
 			wantErr: false,
 		},
