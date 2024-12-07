@@ -137,8 +137,10 @@ var tasksAfterInsert = append(tasksInDB, &newTask)
 
 func TestServer_Run(t *testing.T) {
 	t.Cleanup(func() {
+		_ = testDB.Close()
 		_ = os.Remove(testDSN)
 	})
+
 	tests := []struct {
 		name        string
 		prepareReq  func() (*http.Request, error)
