@@ -19,14 +19,15 @@ func (mc mockConfig) DSN() string {
 
 func TestNew(t *testing.T) {
 	tests := []struct {
-		name      string
-		setupFile func(tempDir string) (path string, err error)
-		wantErr   bool
-		err       error
+		name            string
+		setupFileHelper func(t *testing.T, tempDir string) (path string, err error)
+		wantErr         bool
+		err             error
 	}{
 		{
 			name: "Valid file with read/write permissions",
-			setupFile: func(tempDir string) (path string, err error) {
+			setupFileHelper: func(t *testing.T, tempDir string) (path string, err error) {
+				t.Helper()
 				f, err := os.CreateTemp(tempDir, "")
 				if err != nil {
 					return "", err
@@ -37,7 +38,8 @@ func TestNew(t *testing.T) {
 		},
 		{
 			name: "File does not exist",
-			setupFile: func(_ string) (path string, err error) {
+			setupFileHelper: func(t *testing.T, _ string) (path string, err error) {
+				t.Helper()
 				dummy := "dummy"
 				_ = os.Remove(dummy)
 				return dummy, nil
@@ -47,7 +49,8 @@ func TestNew(t *testing.T) {
 		},
 		{
 			name: "File without write permission",
-			setupFile: func(tempDir string) (path string, err error) {
+			setupFileHelper: func(t *testing.T, tempDir string) (path string, err error) {
+				t.Helper()
 				f, err := os.CreateTemp(tempDir, "")
 				if err != nil {
 					return "", err
@@ -69,7 +72,7 @@ func TestNew(t *testing.T) {
 		})
 
 		t.Run(tt.name, func(t *testing.T) {
-			path, err := tt.setupFile(temp)
+			path, err := tt.setupFileHelper(t, temp)
 			if err != nil {
 				t.Fatal(err)
 			}

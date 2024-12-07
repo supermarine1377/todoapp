@@ -6,12 +6,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/supermarine1377/todoapp/app/internal/config/loader"
-	config_loader "github.com/supermarine1377/todoapp/app/internal/config/loader"
 )
 
 func TestConfig_Port(t *testing.T) {
 	type fields struct {
-		config config_loader.Config
+		config loader.Config
 	}
 	tests := []struct {
 		name   string
@@ -21,7 +20,7 @@ func TestConfig_Port(t *testing.T) {
 		{
 			name: "1st",
 			fields: fields{
-				config: config_loader.Config{
+				config: loader.Config{
 					Port: 8080,
 				},
 			},
