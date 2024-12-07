@@ -170,7 +170,7 @@ func TestServer_Run(t *testing.T) {
 			statusCode: http.StatusBadRequest,
 		},
 		{
-			name: "POST task (appropiate request)",
+			name: "POST task (appropriate request)",
 			prepareReq: func() (*http.Request, error) {
 				b := strings.NewReader(`{"title": "hoge"}`)
 				req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/tasks", b)

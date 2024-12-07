@@ -35,7 +35,7 @@ func TestParse(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "When PORT environemnt variable is set",
+			name: "When PORT environment variable is set",
 			envVar: envVar{
 				Port: "8080",
 				DSN:  "path",
@@ -50,7 +50,7 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "When PORT environemnt variable is not set",
+			name: "When PORT environment variable is not set",
 			want: &loader.Config{
 				Port: 8080,
 				DB: loader.DB{
