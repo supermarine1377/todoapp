@@ -70,6 +70,10 @@ func (mc MockConfig) DSN() string {
 	return testDSN
 }
 
+func (mc MockConfig) Type() string {
+	return "sqlite"
+}
+
 func jsonUnmarshal[T any](res io.Reader) (any, error) {
 	var buff bytes.Buffer
 	_, err := io.Copy(&buff, res)

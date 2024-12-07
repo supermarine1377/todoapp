@@ -33,3 +33,8 @@ func (c *Config) Port() int {
 func (c *Config) DSN() string {
 	return c.config.DB.DSN
 }
+
+// Type はデータベースの種類を返す
+func (c *Config) Type() string {
+	return c.config.DB.Type
+}
