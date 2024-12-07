@@ -22,6 +22,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var testDB *sql.DB
+
+func TestMain(m *testing.M) {
+	db, err := prepareDB()
+	if err != nil {
+		panic(err)
+	}
+	testDB = db
+
+	m.Run()
+}
+
 const testDSN = "test.db"
 
 func prepareDB() (*sql.DB, error) {
@@ -125,15 +137,10 @@ var tasksAfterInsert = append(tasksInDB, &newTask)
 
 func TestServer_Run(t *testing.T) {
 	t.Cleanup(func() {
+		_ = testDB.Close()
 		_ = os.Remove(testDSN)
 	})
-	db, err := prepareDB()
-	defer func() {
-		_ = db.Close()
-	}()
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	tests := []struct {
 		name        string
 		prepareReq  func() (*http.Request, error)
