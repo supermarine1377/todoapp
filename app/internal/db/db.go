@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/supermarine1377/todoapp/app/common/apperrors"
+	"github.com/supermarine1377/todoapp/app/internal/db/postgres"
 	"github.com/supermarine1377/todoapp/app/internal/db/sqlite"
 	"gorm.io/gorm"
 )
@@ -16,17 +17,27 @@ type DB struct {
 }
 
 // DBConfig はデータベースの設定を抽象化する
-type DBConfig interface {
+type Config interface {
 	DSN() string
+	Type() string
 }
 
 // NewDB はDBを生成する
-func NewDB(config DBConfig) (*DB, error) {
-	sqlite, err := sqlite.New(config)
-	if err != nil {
-		return nil, err
+func NewDB(config Config) (*DB, error) {
+	dbType := config.Type()
+	var d gorm.Dialector
+
+	switch dbType {
+	case "sqlite":
+		sqlite, err := sqlite.New(config)
+		if err != nil {
+			return nil, err
+		}
+		d = sqlite
+	case "postgres":
+		d = postgres.New(config)
 	}
-	g, err := gorm.Open(sqlite)
+	g, err := gorm.Open(d)
 	if err != nil {
 		return nil, err
 	}
