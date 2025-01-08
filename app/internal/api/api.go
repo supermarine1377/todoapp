@@ -5,13 +5,9 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net/http"
 
 	"github.com/supermarine1377/todoapp/app/common/logger"
-	"github.com/supermarine1377/todoapp/app/internal/api/handlers/healthz"
-	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task"
 	"github.com/supermarine1377/todoapp/app/internal/api/server"
-	"github.com/supermarine1377/todoapp/app/internal/repository"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -42,14 +38,7 @@ func HTTPServe(ctx context.Context, config Config) error {
 		return err
 	}
 
-	s.RegisterHandler(healthz.Healthz, "/healthz", http.MethodGet)
-	{
-		tr := repository.NewTaskRepository(s.DB())
-		th := task.NewTaskHandler(tr)
-		s.RegisterHandler(th.Create, "/tasks", http.MethodPost)
-		s.RegisterHandler(th.List, "/tasks", http.MethodGet)
-		s.RegisterHandler(th.Get, "/tasks/:id", http.MethodGet)
-	}
+	Route(s)
 
 	logger := slog.New(logger.NewHandler())
 	slog.SetDefault(logger)
