@@ -9,14 +9,6 @@ import (
 	"github.com/supermarine1377/todoapp/app/internal/db/sqlite"
 )
 
-type mockConfig struct {
-	dsn string
-}
-
-func (mc mockConfig) DSN() string {
-	return mc.dsn
-}
-
 func TestNew(t *testing.T) {
 	tests := []struct {
 		name            string
@@ -76,8 +68,7 @@ func TestNew(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			mc := mockConfig{dsn: path}
-			_, err = sqlite.New(mc)
+			_, err = sqlite.New(path)
 			if !tt.wantErr {
 				require.NoError(t, err)
 			}
