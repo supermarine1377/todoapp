@@ -10,10 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Config interface {
-	DSN() string
-}
-
 // ErrSQLiteFileNotFound はSQLiteのファイルが見つからなかったエラー
 var ErrSQLiteFileNotFound = errors.New("error: SQLite file not found")
 
@@ -24,8 +20,7 @@ var ErrPathIsDirectory = errors.New("error: path points to a directory, not a fi
 var ErrFileLacksPermissions = errors.New("error: file lacks read/write permissions for user")
 
 // New は、SQLiteのgorm.Dialectorを返す
-func New(config Config) (gorm.Dialector, error) {
-	dsn := config.DSN()
+func New(dsn string) (gorm.Dialector, error) {
 	fi, err := os.Stat(dsn)
 	if err != nil {
 		if os.IsNotExist(err) {

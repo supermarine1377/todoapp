@@ -135,7 +135,7 @@ var newTask = task.Task{
 
 var tasksAfterInsert = append(tasksInDB, &newTask)
 
-func TestServer_Run(t *testing.T) {
+func TestHTTPServe(t *testing.T) {
 	t.Cleanup(func() {
 		_ = testDB.Close()
 		_ = os.Remove(testDSN)
@@ -223,18 +223,15 @@ func TestServer_Run(t *testing.T) {
 			},
 		},
 	}
-	server, err := api.NewServer(MockConfig{})
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	eg, ctx := errgroup.WithContext(ctx)
-
 	eg.Go(func() error {
-		return server.Run(ctx)
+		if err := api.HTTPServe(ctx, MockConfig{}); err != nil {
+			t.Fatal(err)
+			return err
+		}
+		return nil
 	})
-
 	client := &http.Client{}
 	if err := backoff.Retry(func() error {
 		req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/healthz", nil)
