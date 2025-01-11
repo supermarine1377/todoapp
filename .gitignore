@@ -1,2 +1,4 @@
 .DS_Store
 _data
+.next
+node_modules

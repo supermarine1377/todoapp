@@ -2,6 +2,8 @@
 
 [![Go](https://github.com/supermarine1377/todoapp/actions/workflows/go.yml/badge.svg)](https://github.com/supermarine1377/todoapp/actions/workflows/go.yml)
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/supermarine1377/todoapp)](https://goreportcard.com/report/github.com/supermarine1377/todoapp)
+
 ## Introduction
 
 This repository contains a basic TODO application implemented in Go. The application provides a foundation for learning Go development and cloud-native practices.

@@ -22,6 +22,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var testDB *sql.DB
+
+func TestMain(m *testing.M) {
+	db, err := prepareDB()
+	if err != nil {
+		panic(err)
+	}
+	testDB = db
+
+	m.Run()
+}
+
 const testDSN = "test.db"
 
 func prepareDB() (*sql.DB, error) {
@@ -127,17 +139,12 @@ var newTask = task.Task{
 
 var tasksAfterInsert = append(tasksInDB, &newTask)
 
-func TestServer_Run(t *testing.T) {
+func TestHTTPServe(t *testing.T) {
 	t.Cleanup(func() {
+		_ = testDB.Close()
 		_ = os.Remove(testDSN)
 	})
-	db, err := prepareDB()
-	defer func() {
-		_ = db.Close()
-	}()
-	if err != nil {
-		t.Fatal(err)
-	}
+
 	tests := []struct {
 		name        string
 		prepareReq  func() (*http.Request, error)
@@ -167,7 +174,7 @@ func TestServer_Run(t *testing.T) {
 			statusCode: http.StatusBadRequest,
 		},
 		{
-			name: "POST task (appropiate request)",
+			name: "POST task (appropriate request)",
 			prepareReq: func() (*http.Request, error) {
 				b := strings.NewReader(`{"title": "hoge"}`)
 				req, err := http.NewRequest(http.MethodPost, "http://localhost:8080/tasks", b)
@@ -220,18 +227,15 @@ func TestServer_Run(t *testing.T) {
 			},
 		},
 	}
-	server, err := api.NewServer(MockConfig{})
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	eg, ctx := errgroup.WithContext(ctx)
-
 	eg.Go(func() error {
-		return server.Run(ctx)
+		if err := api.HTTPServe(ctx, MockConfig{}); err != nil {
+			t.Fatal(err)
+			return err
+		}
+		return nil
 	})
-
 	client := &http.Client{}
 	if err := backoff.Retry(func() error {
 		req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/healthz", nil)

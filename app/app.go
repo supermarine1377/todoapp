@@ -9,18 +9,13 @@ import (
 	"github.com/supermarine1377/todoapp/app/internal/config/loader"
 )
 
-// Run はサーバーを起動する
+// Runは、todoappのサーバーを起動する
 func Run(ctx context.Context) error {
 	config, err := config.New(loader.Parse)
 	if err != nil {
 		return err
 	}
-	server, err := api.NewServer(config)
-	if err != nil {
-		return err
-	}
-
-	if err := server.Run(ctx); err != nil {
+	if err := api.HTTPServe(ctx, config); err != nil {
 		return err
 	}
 
