@@ -9,8 +9,8 @@ import (
 	"github.com/supermarine1377/todoapp/app/internal/repository"
 )
 
-// Route は、APIのルーティングを設定する
-func Route(s *server.Server) {
+// Routes は、APIのルーティングを設定する
+func Routes(s *server.Server) {
 	s.RegisterHandler(healthz.Healthz, "/healthz", http.MethodGet)
 	{
 		tr := repository.NewTaskRepository(s.DB())

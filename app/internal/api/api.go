@@ -38,7 +38,7 @@ func HTTPServe(ctx context.Context, config Config) error {
 		return err
 	}
 
-	Route(s)
+	Routes(s)
 
 	logger := slog.New(logger.NewHandler())
 	slog.SetDefault(logger)
