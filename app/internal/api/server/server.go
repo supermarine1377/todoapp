@@ -8,13 +8,11 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/supermarine1377/todoapp/app/internal/db"
 )
 
 // Server はサーバーを表す
 type Server struct {
 	e    *echo.Echo
-	db   *db.DB
 	addr string
 	port int
 }
@@ -24,7 +22,6 @@ type Option func(options *options) error
 
 type options struct {
 	port *int
-	dsn  *string
 }
 
 // ErrInvalidPort はportが不正だった時のエラー
@@ -37,19 +34,6 @@ func WithPort(port int) Option {
 			return ErrInvalidPort
 		}
 		options.port = &port
-		return nil
-	}
-}
-
-var ErrInvalidDSN = errors.New("invalid DSN")
-
-// WithDSN はDSNを設定する
-func WithDSN(dsn string) Option {
-	return func(options *options) error {
-		if dsn == "" {
-			return ErrInvalidDSN
-		}
-		options.dsn = &dsn
 		return nil
 	}
 }
@@ -74,14 +58,9 @@ func New(addr string, opts ...Option) (*Server, error) {
 	}
 
 	e := echo.New()
-	db, err := db.NewDB(*options.dsn)
-	if err != nil {
-		return nil, err
-	}
 
 	return &Server{
 		e:    e,
-		db:   db,
 		addr: addr,
 		port: port,
 	}, nil
@@ -111,8 +90,4 @@ func (s *Server) Use(middleware ...echo.MiddlewareFunc) {
 // Shutdown はサーバーを終了する
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.e.Shutdown(ctx)
-}
-
-func (s *Server) DB() *db.DB {
-	return s.db
 }

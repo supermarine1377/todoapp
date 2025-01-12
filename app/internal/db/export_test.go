@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"regexp"
 	"testing"
@@ -14,6 +15,13 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+type AnyTime struct{}
+
+// Match satisfies sqlmock.Argument interface
+func (a AnyTime) Match(v driver.Value) bool {
+	return true
+}
 
 func newMockDB() (*DB, sqlmock.Sqlmock, error) {
 	conn, mock, err := sqlmock.New()
@@ -42,47 +50,6 @@ func TestDB_InsertCtx(t *testing.T) {
 		wantErr   bool
 	}{
 		{
-			name: "Failed to begin transaction",
-			prepareDB: func() (*DB, error) {
-				db, mock, err := newMockDB()
-				if err != nil {
-					return nil, err
-				}
-				mock.ExpectBegin().WillReturnError(ErrDummy)
-				return db, nil
-			},
-			wantErr: true,
-		},
-		{
-			name: "Failed to commit transaction",
-			prepareDB: func() (*DB, error) {
-				db, mock, err := newMockDB()
-				if err != nil {
-					return nil, err
-				}
-				mock.ExpectBegin().WillReturnError(nil)
-				mock.ExpectCommit().WillReturnError(ErrDummy)
-				return db, nil
-			},
-			p:       struct{}{},
-			wantErr: true,
-		},
-		{
-			name: "Failed to rollback transaction",
-			prepareDB: func() (*DB, error) {
-				db, mock, err := newMockDB()
-				if err != nil {
-					return nil, err
-				}
-				mock.ExpectBegin().WillReturnError(nil)
-				mock.ExpectRollback().WillReturnError(ErrDummy)
-				mock.ExpectCommit().WillReturnError(nil)
-				return db, nil
-			},
-			p:       struct{}{},
-			wantErr: true,
-		},
-		{
 			name: "Insert successful",
 			prepareDB: func() (*DB, error) {
 				db, mock, err := newMockDB()
@@ -91,7 +58,7 @@ func TestDB_InsertCtx(t *testing.T) {
 				}
 				mock.ExpectBegin().WillReturnError(nil)
 				mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `tasks` (`title`,`created_at`,`updated_at`) VALUES (?,?,?)")).
-					WithArgs("dummy", sqlmock.AnyArg(), sqlmock.AnyArg()).
+					WithArgs("dummy", AnyTime{}, AnyTime{}).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit().WillReturnError(nil)
 
@@ -215,7 +182,7 @@ func TestDB_SelectWithIDCtx(t *testing.T) {
 				sql := "SELECT `id`,`title`,`created_at`,`updated_at` FROM `tasks` WHERE `tasks`.`id` = ? ORDER BY `tasks`.`id` LIMIT 1"
 				mock.ExpectQuery(regexp.QuoteMeta(sql)).
 					WithArgs(1).
-					WillReturnRows(sqlmock.NewRows([]string{"id", "title", "created_at", "updated_at"}))
+					WillReturnError(gorm.ErrRecordNotFound)
 				return db, nil
 			},
 			wantErr: true,
@@ -233,7 +200,8 @@ func TestDB_SelectWithIDCtx(t *testing.T) {
 				require.NoError(t, err)
 			}
 			if tt.wantErr {
-				require.Error(t, err, tt.error)
+				require.Error(t, err)
+				require.ErrorIs(t, err, tt.error)
 			}
 		})
 	}

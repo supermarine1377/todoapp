@@ -15,13 +15,63 @@ type DB struct {
 	g *gorm.DB
 }
 
-// NewDB はDBを生成する
-func NewDB(dsn string) (*DB, error) {
-	sqlite, err := sqlite.New(dsn)
-	if err != nil {
-		return nil, err
+// Option はデータベースの設定を表す
+type Option func(options *options) error
+
+type options struct {
+	kind *Kind
+}
+
+type Kind int
+const (
+	SQLite Kind = iota
+)
+
+var ErrInvalidDSN = errors.New("invalid DSN")
+
+func WithDBKind(kind Kind) Option {
+	return func(options *options) error {
+		options.kind = &kind
+		return nil
 	}
-	g, err := gorm.Open(sqlite)
+}
+
+// NewDB はDBを生成する
+func NewDB(dsn string, opts ...Option) (*DB, error) {
+	if dsn == "" {
+		return nil, ErrInvalidDSN
+	}
+
+	var options options
+	for _, opt := range opts {
+		err := opt(&options)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if options.kind == nil {
+		var defaultKind Kind = SQLite
+		options.kind = &defaultKind
+	}
+
+	var dialector gorm.Dialector
+
+	switch *options.kind {
+	case SQLite:
+		d, err := sqlite.New(dsn)
+		if err != nil {
+			return nil, err
+		}
+		dialector = d
+	default:
+		d, err := sqlite.New(dsn)
+		if err != nil {
+			return nil, err
+		}
+		dialector = d
+	}
+
+	g, err := gorm.Open(dialector)
 	if err != nil {
 		return nil, err
 	}

@@ -17,10 +17,10 @@ type Config struct {
 
 // DB はデータベースの設定を表す
 type DB struct {
-	// UseSQLite はSQLiteを使うかどうかの設定
-	UseSQLite bool `env:"USE_SQLITE" envDefault:"true"`
 	// DSN はDBの接続情報を表す設定
 	DSN string `env:"DATABASE_DSN"`
+	// Type はDBの種類を表す設定
+	Type string `env:"DATABASE_TYPE" envDefault:"sqlite"`
 }
 
 // Parse は、サーバーの設定をパースする
