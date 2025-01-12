@@ -6,14 +6,15 @@ import (
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/healthz"
 	"github.com/supermarine1377/todoapp/app/internal/api/handlers/task"
 	"github.com/supermarine1377/todoapp/app/internal/api/server"
+	"github.com/supermarine1377/todoapp/app/internal/db"
 	"github.com/supermarine1377/todoapp/app/internal/repository"
 )
 
 // Routes は、APIのルーティングを設定する
-func Routes(s *server.Server) {
+func Routes(s *server.Server, db *db.DB) {
 	s.RegisterHandler(healthz.Healthz, "/healthz", http.MethodGet)
 	{
-		tr := repository.NewTaskRepository(s.DB())
+		tr := repository.NewTaskRepository(db)
 		th := task.NewTaskHandler(tr)
 		s.RegisterHandler(th.Create, "/tasks", http.MethodPost)
 		s.RegisterHandler(th.List, "/tasks", http.MethodGet)

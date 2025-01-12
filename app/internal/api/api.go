@@ -8,6 +8,7 @@ import (
 
 	"github.com/supermarine1377/todoapp/app/common/logger"
 	"github.com/supermarine1377/todoapp/app/internal/api/server"
+	"github.com/supermarine1377/todoapp/app/internal/db"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -32,13 +33,17 @@ func HTTPServe(ctx context.Context, config Config) error {
 	s, err := server.New(
 		"localhost",
 		server.WithPort(config.Port()),
-		server.WithDSN(config.DSN()),
 	)
 	if err != nil {
 		return err
 	}
 
-	Routes(s)
+	db, err := db.NewDB(config.DSN())
+	if err != nil {
+		return err
+	}
+
+	Routes(s, db)
 
 	logger := slog.New(logger.NewHandler())
 	slog.SetDefault(logger)
